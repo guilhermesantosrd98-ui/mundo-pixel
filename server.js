@@ -22,8 +22,11 @@ const int=(v,min,max,def)=>{const n=Math.floor(Number(v));return Number.isFinite
 const num=(v,max,def)=>{const n=Number(v);return Number.isFinite(n)?Math.min(max,Math.max(0,n)):def;};
 function cleanSave(d){
   d=d||{};
-  return{cls:CLS.includes(d.cls)?d.cls:'Guerreiro',lv:int(d.lv,1,200,1),xp:num(d.xp,1e9,0),gold:num(d.gold,1e9,0),
-    pot:int(d.pot,0,999,0),bonus:num(d.bonus,100,0),spd:num(d.spd,10,0),x:int(d.x,0,149,0),y:int(d.y,0,109,0)};
+  const sk=d.sk||{},sx=d.sx||{};
+  return{cls:CLS.includes(d.cls)?d.cls:'Guerreiro',lv:int(d.lv,1,1000000,1),xp:num(d.xp,1e15,0),gold:num(d.gold,1e15,0),
+    pot:int(d.pot,0,999,0),bonus:num(d.bonus,100,0),spd:num(d.spd,10,0),x:int(d.x,0,149,0),y:int(d.y,0,109,0),
+    sk:{mg:int(sk.mg,0,1e6,0),me:int(sk.me,0,1e6,0),gu:int(sk.gu,0,1e6,0)},
+    sx:{mg:num(sx.mg,1e12,0),me:num(sx.me,1e12,0),gu:num(sx.gu,1e12,0)}};
 }
 
 const server=http.createServer((req,res)=>{
@@ -76,7 +79,7 @@ wss.on('connection',ws=>{
     }else if(m.type==='pres'&&c.authed){
       const p=m.p||{};
       c.pres={n:c.name,c:CLS.includes(p.c)?p.c:'Guerreiro',x:int(p.x,0,149,0),y:int(p.y,0,109,0),
-        f:['u','d','l','r'].includes(p.f)?p.f:'d',l:int(p.l,1,200,1)};
+        f:['u','d','l','r'].includes(p.f)?p.f:'d',l:int(p.l,1,1000000,1)};
 
     }else if(m.type==='save'&&c.authed){
       const rec=names[c.name.toLowerCase()];
