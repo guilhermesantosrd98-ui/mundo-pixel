@@ -7,7 +7,7 @@ const {WebSocketServer}=require('ws');
 const PORT=process.env.PORT||3000;
 const DB_FILE=process.env.DB_FILE||path.join(__dirname,'names.json');
 const CLS=['Guerreiro','Mago','Arqueiro'];
-const NAME_RE=/^[A-Za-z0-9_]{3,14}$/;
+const NAME_RE=/^[A-Za-z0-9_]{2,14}$/;
 
 let names={};
 try{names=JSON.parse(fs.readFileSync(DB_FILE,'utf8'));}catch(e){names={};}
@@ -24,7 +24,7 @@ function cleanSave(d){
   d=d||{};
   const sk=d.sk||{},sx=d.sx||{};
   return{cls:CLS.includes(d.cls)?d.cls:'Guerreiro',lv:int(d.lv,1,1000000,1),xp:num(d.xp,1e15,0),gold:num(d.gold,1e15,0),
-    pot:int(d.pot,0,999,0),bonus:num(d.bonus,100,0),spd:num(d.spd,10,0),x:int(d.x,0,149,0),y:int(d.y,0,109,0),
+    pot:int(d.pot,0,999,0),bonus:num(d.bonus,100,0),spd:num(d.spd,10,0),x:int(d.x,0,419,0),y:int(d.y,0,259,0),
     sk:{mg:int(sk.mg,0,1e6,0),me:int(sk.me,0,1e6,0),gu:int(sk.gu,0,1e6,0)},
     sx:{mg:num(sx.mg,1e12,0),me:num(sx.me,1e12,0),gu:num(sx.gu,1e12,0)}};
 }
@@ -61,24 +61,30 @@ wss.on('connection',ws=>{
 
     }else if(m.type==='claim'){
       const n=String(m.name||'');
-      if(!NAME_RE.test(n)){send(ws,{type:'claimed',ok:false,why:'nome invalido'});return;}
+      const code=String(m.adm||'');
+      const adm=!!(process.env.ADMIN_CODE&&code&&code===process.env.ADMIN_CODE);
+      if(!NAME_RE.test(n)){send(ws,{type:'claimed',ok:false,why:'Nome invalido.'});return;}
+      if(code&&!adm){send(ws,{type:'claimed',ok:false,why:'Codigo de admin incorreto.'});return;}
+      if(adm&&n.length!==2){send(ws,{type:'claimed',ok:false,why:'Admin precisa de nome com 2 caracteres.'});return;}
+      if(!adm&&n.length<3){send(ws,{type:'claimed',ok:false,why:'O nome precisa ter de 3 a 14 caracteres.'});return;}
       const key=n.toLowerCase(),rec=names[key];
       if(!rec){
         const token=crypto.randomBytes(16).toString('hex');
-        names[key]={name:n,token:token,data:cleanSave({cls:m.cls})};
+        names[key]={name:n,token:token,adm:adm,data:cleanSave({cls:m.cls})};
         dirtyDB=true;
-        Object.assign(c,{name:n,authed:true});
-        send(ws,{type:'claimed',ok:true,name:n,token:token,save:null});
+        Object.assign(c,{name:n,authed:true,adm:adm});
+        send(ws,{type:'claimed',ok:true,name:n,token:token,save:null,adm:adm});
       }else if(m.token&&m.token===rec.token){
-        Object.assign(c,{name:n,authed:true});
-        send(ws,{type:'claimed',ok:true,name:n,token:rec.token,save:rec.data});
+        const a2=!!(rec.adm||adm);
+        if(adm&&!rec.adm){rec.adm=true;dirtyDB=true;}
+        Object.assign(c,{name:n,authed:true,adm:a2});
+        send(ws,{type:'claimed',ok:true,name:n,token:rec.token,save:rec.data,adm:a2});
       }else{
         send(ws,{type:'claimed',ok:false,why:'Esse nome ja foi utilizado.'});
       }
-
     }else if(m.type==='pres'&&c.authed){
       const p=m.p||{};
-      c.pres={n:c.name,c:CLS.includes(p.c)?p.c:'Guerreiro',x:int(p.x,0,149,0),y:int(p.y,0,109,0),
+      c.pres={adm:!!c.adm,n:c.name,c:CLS.includes(p.c)?p.c:'Guerreiro',x:int(p.x,0,419,0),y:int(p.y,0,259,0),
         f:['u','d','l','r'].includes(p.f)?p.f:'d',l:int(p.l,1,1000000,1)};
 
     }else if(m.type==='save'&&c.authed){

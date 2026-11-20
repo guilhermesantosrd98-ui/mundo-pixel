@@ -19,6 +19,16 @@ html,body{margin:0;height:100%;background:#0b0b12;color:#eee;font-family:'Press 
 .bar{height:9px;background:#2a2a33;border:1px solid #000;margin:2px 0 6px}
 .bar div{height:100%}
 #gearbox .bar div{background:#7fd0ff}
+.login{background:radial-gradient(circle at 50% 30%,#22305a,#05060c 70%)}
+.card{width:min(440px,92vw);background:#121625;border:3px solid #7a6440;box-shadow:0 0 0 3px #000,0 16px 48px #000;padding:24px}
+.logo{font-size:18px;color:#ffe14d;text-align:center;text-shadow:3px 3px #000;margin-bottom:8px}
+.sub{font-size:7px;color:#9ab;text-align:center;margin-bottom:18px;line-height:1.8}
+.lbl{display:block;margin:12px 0 4px;font-size:8px;color:#cfe}
+.desc{font-size:7px;line-height:1.8;color:#bcd;min-height:26px;margin:6px 0 10px}
+.go{background:#2f6b2f;border-color:#8fd08f;text-align:center;font-size:10px;padding:12px;margin-top:12px}
+details{margin-top:10px;font-size:7px;color:#9ab}
+summary{cursor:pointer;margin-bottom:6px}
+
 #hpb div{background:#d23a3a}#stb div{background:#3cb84a}#xpb div{background:#e6c33a}
 button{font-family:inherit;font-size:8px;background:#3a2f1e;color:#fff;border:2px solid #b08a4a;padding:8px;cursor:pointer;margin:4px 0;width:100%;text-align:left}
 button:hover{background:#5a4a2c}
@@ -47,24 +57,25 @@ input{font-family:inherit;font-size:9px;padding:6px;width:100%;background:#000;c
 <button id="swap" data-act="swap" style="position:fixed;right:14px;bottom:14px;width:auto;z-index:5">Classe: Guerreiro ></button>
 <button id="gear" data-act="gear" style="position:fixed;left:14px;bottom:14px;width:auto;padding:4px;z-index:5"><canvas id="gearc" width="12" height="12" style="width:36px;height:36px;image-rendering:pixelated;display:block"></canvas></button>
 <div id="gearov" class="ov hidden"><div class="box" id="gearbox"></div></div>
-<div id="start" class="ov">
-  <div class="box">
-    <div style="font-size:12px;margin-bottom:12px">MUNDO PIXEL</div>
-    Nome (3 a 14 letras, números ou _):
-    <input id="pname" maxlength="14" autocomplete="off">
+<div id="start" class="ov login">
+  <div class="card">
+    <div class="logo">MUNDO PIXEL</div>
+    <div class="sub">Um mundo aberto para explorar,<br>caçar e subir de nível.</div>
+    <label class="lbl" for="pname">Nome do personagem</label>
+    <input id="pname" maxlength="14" autocomplete="off" placeholder="3 a 14 letras ou números">
     <div id="nmsg" class="msg">Conectando...</div>
-    Classe:
+    <label class="lbl">Escolha sua classe</label>
     <div class="row">
       <button class="cb sel" data-act="cls" data-arg="Guerreiro">Guerreiro</button>
       <button class="cb" data-act="cls" data-arg="Mago">Mago</button>
       <button class="cb" data-act="cls" data-arg="Arqueiro">Arqueiro</button>
     </div>
-    <div id="cdesc" style="font-size:7px;line-height:1.8;margin:6px 0 10px"></div>
-    <button id="enter" data-act="enter" disabled>Entrar no mundo</button>
+    <div id="cdesc" class="desc"></div>
+    <details><summary>Sou o dono do jogo</summary><input id="acode" type="password" maxlength="40" autocomplete="off" placeholder="código secreto"></details>
+    <button id="enter" class="go" data-act="enter" disabled>Entrar no mundo</button>
   </div>
 </div>
-
-<div id="shop" class="ov hidden">
+<div id="shop" class="ov hidden"><div id="shop" class="ov hidden">
   <div class="box">
     <div style="margin-bottom:8px">MERCADOR</div>
     <button data-act="buy" data-arg="pot">Poção de Vida (20 ouro)</button>
@@ -89,12 +100,12 @@ input{font-family:inherit;font-size:9px;padding:6px;width:100%;background:#000;c
 </div>
 
 <div id="mapov" class="ov hidden">
-  <canvas id="mini" width="450" height="330" style="border:3px solid #b08a4a;image-rendering:pixelated;max-width:94vw;max-height:80vh"></canvas>
+  <canvas id="mini" width="840" height="520" style="border:3px solid #b08a4a;image-rendering:pixelated;max-width:94vw;max-height:80vh"></canvas>
 </div>
 
 <script>
 const $=id=>document.getElementById(id);
-const TW=150,TH=110,T=32,VW=960,VH=576;
+const TW=420,TH=260,T=32,VW=960,VH=576;
 const cv=$('world'),ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;
 const mini=$('mini'),mctx=mini.getContext('2d');
 const tIdx=(x,y)=>y*TW+x;
@@ -106,7 +117,9 @@ const hash=(i,j,s)=>{let n=(Math.imul(i,374761393)+Math.imul(j,668265263)+Math.i
 const vn=(x,y,s)=>{const x0=Math.floor(x),y0=Math.floor(y),fx=x-x0,fy=y-y0,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);const a=hash(x0,y0,s),b=hash(x0+1,y0,s),c=hash(x0,y0+1,s),d=hash(x0+1,y0+1,s);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;};
 
 // ---------- DADOS ----------
-const TOWN={x:66,y:44,w:24,h:18};
+const TOWN={x:108,y:111,w:24,h:18};
+const TOWN2={x:318,y:111,w:24,h:18};
+const TOWNS=[TOWN,TOWN2];
 const BIOME={15:'Planície',16:'Ruínas',0:'Planície',9:'Planície',10:'Planície',1:'Floresta',13:'Floresta',5:'Deserto',11:'Deserto',6:'Neve',8:'Pântano',2:'Lago',7:'Montanha',3:'Cidade',4:'Cidade'};
 const WALK=new Set([0,3,5,6,8,9,13]);
 const MOBDEF=[
@@ -147,33 +160,60 @@ const NPCS=[
   {nome:'Guia',x:TOWN.x+11,y:TOWN.y+12,cor:'#40a0c8',fala:'Saia pela estrada. Cada bioma tem seus monstros. Cuidado!'}
 ];
 
-// ---------- MAPA (0 grama, 1 árvore, 2 água, 3 estrada, 4 prédio, 5 areia, 6 neve, 7 montanha, 8 pântano, 9 flores, 10 pedra, 11 cacto, 13 chão de floresta) ----------
+// ---------- MUNDO: ZONAS, CIDADES, PASSAGENS E MONSTROS ----------
 const MAP=new Uint8Array(TW*TH);
+const ZONES=[
+  {n:'Deserto',x1:20,y1:40,x2:100,y2:110,base:'desert',mobs:['Crow','Wolf','Scorpion','Cobra','Mummy','Pharaoh']},
+  {n:'Cemitério',x1:150,y1:20,x2:225,y2:85,base:'grave',mobs:['Zombie','Skeleton']},
+  {n:'Calabouço dos Vampiros',x1:232,y1:20,x2:292,y2:90,base:'dungeon',mobs:['Skeleton','Vampire','Assassin']},
+  {n:'Gelo',x1:300,y1:20,x2:410,y2:100,base:'snow',mobs:['Ice Elemental','Yeti','Wolf']},
+  {n:'Floresta Drow',x1:20,y1:150,x2:100,y2:235,base:'forest',mobs:['Drow Mage','Assassin','Goblin']},
+  {n:'Pântano dos Lagartos',x1:110,y1:175,x2:200,y2:245,base:'swamp',mobs:['Lizard Warrior','Cobra','Worm']},
+  {n:'Montanha dos Gárgulas',x1:210,y1:150,x2:280,y2:215,base:'rock',mobs:['Gargoyle','Worm']},
+  {n:'Labirinto do Minotauro',x1:290,y1:185,x2:350,y2:245,base:'forest',mobs:['Minotaur','Goblin']},
+  {n:'Montanha do Dragão',x1:358,y1:150,x2:412,y2:225,base:'rock',mobs:['Dragon','Orthrus']},
+  {n:'Vulcão',x1:358,y1:100,x2:412,y2:140,base:'volcano',mobs:['Lava Golem','Demon']}
+];
+const BASEGEN={
+  desert:()=>R()<0.03?11:(R()<0.01?10:5),
+  grave:()=>R()<0.05?10:(R()<0.05?1:13),
+  dungeon:()=>R()<0.3?4:3,
+  forest:()=>R()<0.35?1:13,
+  swamp:()=>R()<0.2?2:8,
+  rock:()=>R()<0.25?10:(R()<0.12?7:3),
+  snow:()=>R()<0.1?1:6,
+  volcano:()=>R()<0.25?18:(R()<0.1?10:3)
+};
+const zoneAt=(x,y)=>ZONES.find(z=>x>=z.x1&&x<=z.x2&&y>=z.y1&&y<=z.y2)||null;
 for(let y=0;y<TH;y++)for(let x=0;x<TW;x++){
-  const e=0.6*vn(x/20,y/20,1)+0.3*vn(x/7,y/7,2)+0.1*vn(x/3,y/3,3);
-  const m=0.7*vn(x/24,y/24,7)+0.3*vn(x/6,y/6,8);
   let t;
-  if(x===0||y===0||x===TW-1||y===TH-1||e>0.78)t=7;
-  else if(e<0.33)t=2;
-  else if(e<0.37)t=5;
-  else if(y<14&&e>0.42)t=R()<0.15?1:6;
-  else if(m<0.36)t=R()<0.03?11:5;
-  else if(m>0.68)t=R()<0.4?1:13;
-  else if(m>0.58&&e<0.46)t=R()<0.3?2:8;
-  else t=R()<0.05?9:(R()<0.02?10:0);
+  const z=zoneAt(x,y);
+  if(x===0||y===0||x===TW-1||y===TH-1)t=7;
+  else if(z)t=BASEGEN[z.base]();
+  else{
+    const e=0.6*vn(x/24,y/24,1)+0.3*vn(x/8,y/8,2)+0.1*vn(x/3,y/3,3);
+    const m=0.7*vn(x/30,y/30,7)+0.3*vn(x/7,y/7,8);
+    if(e<0.28)t=2;
+    else if(e<0.32)t=5;
+    else if(e>0.8)t=7;
+    else if(m>0.66)t=R()<0.4?1:13;
+    else t=R()<0.06?9:(R()<0.03?15:(R()<0.02?10:0));
+  }
   MAP[tIdx(x,y)]=t;
 }
-for(let y=TOWN.y;y<TOWN.y+TOWN.h;y++)for(let x=TOWN.x;x<TOWN.x+TOWN.w;x++)MAP[tIdx(x,y)]=3;
 const bld=(x1,y1,x2,y2,dx,dy)=>{for(let y=y1;y<=y2;y++)for(let x=x1;x<=x2;x++)MAP[tIdx(x,y)]=4;MAP[tIdx(dx,dy)]=3;};
-{const X=TOWN.x,Y=TOWN.y;
+const TORCHES=[],PORTALS=[],MONS=[];
+for(const T of TOWNS){
+  for(let y=T.y;y<T.y+T.h;y++)for(let x=T.x;x<T.x+T.w;x++)MAP[tIdx(x,y)]=3;
+  const X=T.x,Y=T.y;
   bld(X+3,Y+2,X+8,Y+6,X+5,Y+6);
   bld(X+14,Y+2,X+19,Y+6,X+16,Y+6);
   bld(X+3,Y+11,X+8,Y+14,X+5,Y+11);
-  bld(X+14,Y+11,X+19,Y+14,X+16,Y+11);}
-
-// ---------- MAPA: DETALHES, TOCHAS, PASSAGENS E MONSTROS ----------
-const inTownRect=(x,y)=>x>=TOWN.x&&x<TOWN.x+TOWN.w&&y>=TOWN.y&&y<TOWN.y+TOWN.h;
-const PORTALS=[],TORCHES=[],MONS=[];
+  bld(X+14,Y+11,X+19,Y+14,X+16,Y+11);
+  [[X,Y],[X+T.w-1,Y],[X,Y+T.h-1],[X+T.w-1,Y+T.h-1],[X+4,Y+7],[X+6,Y+7],[X+15,Y+7],[X+17,Y+7],[X+4,Y+10],[X+6,Y+10],[X+15,Y+10],[X+17,Y+10]].forEach(([x,y])=>TORCHES.push({x:x,y:y}));
+}
+NPCS.push({nome:'Mercador',x:TOWN2.x+11,y:TOWN2.y+7,cor:'#c8a040',shop:true,fala:'Bem-vindo à Cidade II! Confira minhas mercadorias.'});
+const inTownRect=(x,y)=>TOWNS.some(t=>x>=t.x&&x<t.x+t.w&&y>=t.y&&y<t.y+t.h);
 const freeNear=(x,y)=>{
   for(const[ox,oy]of[[0,0],[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[2,0],[0,2]]){
     const nx=x+ox,ny=y+oy;
@@ -181,50 +221,42 @@ const freeNear=(x,y)=>{
   }
   return{x:x,y:y};
 };
-{
-  const X=TOWN.x,Y=TOWN.y;
-  for(let i=0;i<TW*TH;i++){
-    if(MAP[i]===0&&R()<0.035)MAP[i]=15;
-    else if(MAP[i]===5&&R()<0.006)MAP[i]=16;
+ZONES.forEach((z,i)=>{
+  const cx=Math.floor((z.x1+z.x2)/2),cy=Math.floor((z.y1+z.y2)/2);
+  let pos=null,tries=0;
+  while(!pos&&tries<5000){
+    tries++;
+    const x=cx+Math.floor((R()-0.5)*(z.x2-z.x1)*0.5),y=cy+Math.floor((R()-0.5)*(z.y2-z.y1)*0.5);
+    if(WALK.has(MAP[tIdx(x,y)]))pos={x:x,y:y};
   }
-  [[X,Y],[X+TOWN.w-1,Y],[X,Y+TOWN.h-1],[X+TOWN.w-1,Y+TOWN.h-1],[X+4,Y+7],[X+6,Y+7],[X+15,Y+7],[X+17,Y+7],[X+4,Y+10],[X+6,Y+10],[X+15,Y+10],[X+17,Y+10]].forEach(([x,y])=>TORCHES.push({x:x,y:y}));
-  const BK=[{name:'Planície',ids:[0,9]},{name:'Floresta',ids:[13]},{name:'Deserto',ids:[5,11]},{name:'Neve',ids:[6]},{name:'Pântano',ids:[8]}];
-  const CXT=X+TOWN.w/2,CYT=Y+TOWN.h/2;
-  const dT=(x,y)=>Math.hypot(x-CXT,y-CYT);
-  BK.forEach((b,i)=>{
-    let pos=null,tries=0;
-    while(!pos&&tries<50000){
-      tries++;
-      const x=2+Math.floor(R()*(TW-4)),y=2+Math.floor(R()*(TH-4));
-      if(b.ids.includes(MAP[tIdx(x,y)])&&dT(x,y)>12&&dT(x,y)<60)pos={x:x,y:y};
-    }
-    pos=pos||{x:CXT+10,y:CYT+i*2};
-    const bp=freeNear(pos.x,pos.y);
-    PORTALS.push({name:b.name,kind:'biome',x:bp.x,y:bp.y,to:null});
-    PORTALS.push({name:'Para '+b.name,kind:'town',x:X+1,y:Y+2+i*3,to:null});
+  z.portal=freeNear(pos?pos.x:cx,pos?pos.y:cy);
+  PORTALS.push({name:z.n,kind:'biome',x:z.portal.x,y:z.portal.y,to:null,zone:i});
+});
+TOWNS.forEach((T,ti)=>{
+  ZONES.forEach((z,i)=>{
+    const px=i%2===0?T.x+1:T.x+T.w-2,py=T.y+2+Math.floor(i/2)*3;
+    PORTALS.push({name:'Para '+z.n,kind:'town',x:px,y:py,to:freeNear(z.portal.x,z.portal.y),zone:i});
+    if(ti===0)PORTALS.find(p=>p.kind==='biome'&&p.zone===i).to=freeNear(px+1,py);
   });
-  for(let i=0;i<BK.length;i++){
-    const bpo=PORTALS[2*i],tpo=PORTALS[2*i+1];
-    bpo.to=freeNear(tpo.x+1,tpo.y);
-    tpo.to=freeNear(bpo.x,bpo.y);
+});
+const mkMob=(D,x,y)=>({name:D.n,lv:D.lv,label:D.n+' Lv.'+D.lv,hp:D.hp,hpMax:D.hp,atk:Math.round(2+D.lv*0.45),
+  xp:D.xp,gmin:D.gmin,gmax:D.gmax,col:D.col,shape:D.shape,sc:D.sc,delay:Math.max(160,1000-D.lv*4),
+  hx:x,hy:y,x:x,y:y,vx:x,vy:y,dead:false,respawnAt:0,nextAct:0,nextAtk:0});
+const okSpawn=(x,y)=>WALK.has(MAP[tIdx(x,y)])&&!inTownRect(x,y)&&!PORTALS.some(p=>p.x===x&&p.y===y)&&!MONS.some(m=>m.x===x&&m.y===y);
+function placeMon(D,pred){
+  for(let t=0;t<500;t++){
+    const x=2+Math.floor(R()*(TW-4)),y=2+Math.floor(R()*(TH-4));
+    if(okSpawn(x,y)&&pred(x,y))return mkMob(D,x,y);
   }
-  const KEY={0:'p',9:'p',13:'f',5:'d',11:'d',6:'s',8:'w'};
-  const CX=X+TOWN.w/2,CY=Y+TOWN.h/2;
-  const maxLv=d=>8+d*4;
-  for(let i=0;i<120;i++){
-    let x,y,k,d,pool;
-    do{
-      x=2+Math.floor(R()*(TW-4));y=2+Math.floor(R()*(TH-4));
-      k=KEY[MAP[tIdx(x,y)]];
-      d=Math.hypot(x-CX,y-CY);
-      pool=k?MOBDEF.filter(m=>m.tags.includes(k)&&m.lv<=maxLv(d)):[];
-    }while(!k||pool.length===0||d<14||inTownRect(x,y)||PORTALS.some(p=>p.x===x&&p.y===y));
-    const D=pool[Math.floor(R()*pool.length)];
-    MONS.push({name:D.n,lv:D.lv,label:D.n+' Lv.'+D.lv,hp:D.hp,hpMax:D.hp,atk:Math.round(2+D.lv*0.45),
-      xp:D.xp,gmin:D.gmin,gmax:D.gmax,col:D.col,shape:D.shape,sc:D.sc,delay:Math.max(160,1000-D.lv*4),
-      hx:x,hy:y,x:x,y:y,vx:x,vy:y,dead:false,respawnAt:0,nextAct:0,nextAtk:0});
-  }
+  return null;
 }
+const K=5;
+ZONES.forEach(z=>z.mobs.forEach(nm=>MOBDEF.filter(d=>d.n===nm).forEach(D=>{
+  for(let c=0;c<K;c++){const mm=placeMon(D,(x,y)=>zoneAt(x,y)===z);if(mm)MONS.push(mm);}
+})));
+['Rat','Crow','Worm','Goblin','Wolf'].forEach(nm=>MOBDEF.filter(d=>d.n===nm).forEach(D=>{
+  for(let c=0;c<K;c++){const mm=placeMon(D,(x,y)=>!zoneAt(x,y));if(mm)MONS.push(mm);}
+}));
 
 // ---------- ESTADO ----------
 const P={nome:'',cls:'Guerreiro',sk:{mg:0,me:0,gu:0},sx:{mg:0,me:0,gu:0},x:TOWN.x+11,y:TOWN.y+9,vx:TOWN.x+11,vy:TOWN.y+9,lv:1,xp:0,gold:20,hp:150,hpMax:150,st:100,pot:2,bonus:0,spd:0,face:'d',lastMove:0,lastAtk:0,lastAct:0,path:null,target:null,biome:''};
@@ -234,7 +266,7 @@ let db=null,user=null,ME=null,CHAR=null,dirty=false,saving=false;
 let room=null,peerList=[];
 const BUB=new Map(),RV=new Map();
 const keys={},texts=[],fx=[],parts=[];
-const NAME_RE=/^[A-Za-z0-9_]{3,14}$/;
+const NAME_RE=/^[A-Za-z0-9_]{2,14}$/;
 const needXp=l=>Math.floor(60*l*l+40*l);
 const hpBase=()=>CLS[P.cls].hp+(P.lv-1)*15;
 const atkTotal=()=>CLS[P.cls].atk+(P.lv-1)+P.bonus+Math.floor(P.sk[P.cls==='Mago'?'mg':'me']*0.4);
@@ -276,10 +308,15 @@ function findPath(sx,sy,goal){
   const path=[];for(let c=end;c!==start;c=prev[c])path.push({x:c%TW,y:(c/TW)|0});
   return path.reverse();
 }
-function biomeName(x,y){return BIOME[MAP[tIdx(x,y)]]||'Terra';}
+function biomeName(x,y){
+  const z=zoneAt(x,y);if(z)return z.n;
+  const T=TOWNS.find(t=>x>=t.x&&x<t.x+t.w&&y>=t.y&&y<t.y+t.h);
+  if(T)return T===TOWN?'Cidade I':'Cidade II';
+  return BIOME[MAP[tIdx(x,y)]]||'Campo';
+}
 
 // ---------- REDE (servidor próprio: nomes, progresso, presença e chat) ----------
-let ws=null,myPeer=null,pendingClaim=null,pendingCheck=null;
+let ws=null,myPeer=null,pendingClaim=null,pendingCheck=null,isAdmin=false;
 function netSend(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o));}
 function initConnect(){
   ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws');
@@ -292,6 +329,7 @@ function onNet(m){
   else if(m.type==='avail'){if(pendingCheck){const f=pendingCheck;pendingCheck=null;f(m);}}
   else if(m.type==='claimed'){
     if(m.ok&&m.token){try{localStorage.setItem('mp-token-'+m.name.toLowerCase(),m.token);}catch(e){}}
+    if(m.ok)isAdmin=!!m.adm;
     if(pendingClaim){const f=pendingClaim;pendingClaim=null;f(m);}
   }
   else if(m.type==='peers'&&Array.isArray(m.list)){peerList=m.list.map(e=>({peer:e.peer,isMe:e.peer===myPeer,presence:e.presence,kind:'viewer'}));}
@@ -316,7 +354,7 @@ function claimName(n,cls){
   const token=localStorage.getItem('mp-token-'+n.toLowerCase())||null;
   return new Promise(res=>{
     pendingClaim=res;
-    netSend({type:'claim',name:n,cls:cls,token:token});
+    netSend({type:'claim',name:n,cls:cls,token:token,adm:$('acode').value.trim()});
     setTimeout(()=>{if(pendingClaim===res){pendingClaim=null;res({ok:false});}},5000);
   });
 }
@@ -341,7 +379,7 @@ async function enterWorld(){
   let r;
   try{r=await claimName(n,CLS_SEL);}
   catch(e){setMsg('Não consegui falar com o banco. Tente de novo.');$('enter').disabled=false;return;}
-  if(!r.ok){setMsg('Esse nome já foi utilizado. Escolha outro.');$('enter').disabled=false;return;}
+  if(!r.ok){setMsg(r.why||'Esse nome já foi utilizado. Escolha outro.');$('enter').disabled=false;return;}
   CHAR=n;P.nome=n;
   if(r.save){
     const d=r.save;
@@ -407,7 +445,7 @@ function drawRemote(p,r,now){
   const face=['u','d','l','r'].includes(pr.f)?pr.f:'d';
   const c=Object.prototype.hasOwnProperty.call(CLS,pr.c)?CLS[pr.c]:CLS.Guerreiro;
   drawHero(x,y,face,moving,now,c);
-  label(String(pr.n||'Jogador').slice(0,14),x+16,y-6,'#9fdcff');
+  label(String(pr.n||'Jogador').slice(0,14),x+16,y-6,pr.adm?'#ffe14d':'#9fdcff');
   label('Lv '+(Number(pr.l)||1),x+16,y-16,'#ffe14d');
   drawBubble(x+16,y-30,BUB.get(p.peer));
 }
@@ -565,11 +603,7 @@ function swapClass(){
 
 // ---------- ADMIN ----------
 function openAdmin(){
-  if(!admAuth){
-    const s=prompt('Senha de admin:');
-    if(s!=='dono123'){log('Senha incorreta.');return;}
-    admAuth=true;
-  }
+  if(!isAdmin){log('Só o dono do jogo pode abrir o painel admin.');return;}
   openOv('admin');
 }
 function admSetLv(){
@@ -658,7 +692,7 @@ function update(now,dt){
 // ---------- DESENHO: TERRENO ----------
 function drawTile(t,tx,ty,px,py,now){
   const h=hash(tx,ty,99);
-  const base={15:'#3f8430',16:'#8c8068',0:'#4f9a3c',9:'#4f9a3c',10:'#4f9a3c',1:'#2f6a2c',13:'#2f6a2c',3:'#8c8068',4:'#8b3a2a',5:'#d8c088',11:'#d8c088',6:'#eaf4ff',7:'#6b6b74',8:'#3c5a3a',2:'#2f6fc0'}[t];
+  const base={18:'#7a2a10',15:'#3f8430',16:'#8c8068',0:'#4f9a3c',9:'#4f9a3c',10:'#4f9a3c',1:'#2f6a2c',13:'#2f6a2c',3:'#8c8068',4:'#8b3a2a',5:'#d8c088',11:'#d8c088',6:'#eaf4ff',7:'#6b6b74',8:'#3c5a3a',2:'#2f6fc0'}[t];
   ctx.fillStyle=base;ctx.fillRect(px,py,T,T);
   if(t===2){
     const o=(Math.floor(now/400)+Math.floor(h*4))%2;
@@ -691,6 +725,7 @@ function drawTile(t,tx,ty,px,py,now){
   if(t===11){
     ctx.fillStyle='#3f8a3a';ctx.fillRect(px+14,py+6,4,20);ctx.fillRect(px+8,py+14,6,3);ctx.fillRect(px+8,py+10,3,7);ctx.fillRect(px+18,py+12,6,3);ctx.fillRect(px+21,py+8,3,7);
   }
+  if(t===18){const f=Math.floor(now/300+tx+ty)%2;ctx.fillStyle=f?'#ff7a1a':'#ffb347';ctx.fillRect(px+4,py+6,8,3);ctx.fillRect(px+18,py+18,7,3);ctx.fillStyle='#ffd27a';ctx.fillRect(px+10,py+12,3,2);}
   if(t===15){ctx.fillStyle='#2a6a28';ctx.beginPath();ctx.arc(px+16,py+18,11,0,7);ctx.fill();ctx.fillStyle='#3f8a3a';ctx.beginPath();ctx.arc(px+12,py+14,5,0,7);ctx.fill();}
   if(t===16){ctx.fillStyle='#9a9088';ctx.fillRect(px+8,py+8,5,20);ctx.fillRect(px+20,py+14,5,14);ctx.fillStyle='#6e6252';ctx.fillRect(px+8,py+26,18,3);}
   if(t===1){
@@ -774,7 +809,7 @@ function drawMon(m,now){
     }
     ctx.fillStyle='#ff2020';ctx.fillRect(x+12,y+16,3,3);ctx.fillRect(x+18,y+16,3,3);
   }
-  label(m.label,x+16,y-12,'#fff');
+  label(m.label,x+16,y-12,m.lv>P.lv+10?'#ff6060':(m.lv<P.lv-10?'#9ad88a':'#fff'));
   if(m.hp<m.hpMax){
     ctx.fillStyle='#000';ctx.fillRect(x+4,y-6,24,4);
     ctx.fillStyle='#d23a3a';ctx.fillRect(x+5,y-5,Math.max(0,22*m.hp/m.hpMax),2);
@@ -821,7 +856,7 @@ function draw(now){
   list.push([P.vy,()=>{
     const x=Math.round(P.vx*T-camX),y=Math.round(P.vy*T-camY);
     drawHero(x,y,P.face,moving,now,CLS[P.cls]);
-    label(P.nome,x+16,y-6,'#fff');
+    label(P.nome,x+16,y-6,isAdmin?'#ffe14d':'#fff');
     label('Lv '+P.lv,x+16,y-16,'#ffe14d');
     drawBubble(x+16,y-30,BUB.get('self'));
   }]);
@@ -871,14 +906,14 @@ function hud(now){
 // ---------- MAPA ----------
 const mapC=document.createElement('canvas');mapC.width=TW;mapC.height=TH;
 const mc=mapC.getContext('2d');
-const MCOL={15:'#2a6a28',16:'#9a9088',0:'#4f9a3c',1:'#2f6a2c',2:'#2f6fc0',3:'#8c8068',4:'#8b3a2a',5:'#d8c088',6:'#eaf4ff',7:'#6b6b74',8:'#3c5a3a',9:'#4f9a3c',10:'#6a6a72',11:'#d8c088',13:'#2f6a2c'};
+const MCOL={18:'#c04010',15:'#2a6a28',16:'#9a9088',0:'#4f9a3c',1:'#2f6a2c',2:'#2f6fc0',3:'#8c8068',4:'#8b3a2a',5:'#d8c088',6:'#eaf4ff',7:'#6b6b74',8:'#3c5a3a',9:'#4f9a3c',10:'#6a6a72',11:'#d8c088',13:'#2f6a2c'};
 for(let y=0;y<TH;y++)for(let x=0;x<TW;x++){mc.fillStyle=MCOL[MAP[tIdx(x,y)]];mc.fillRect(x,y,1,1);}
 function drawMini(){
   mctx.imageSmoothingEnabled=false;
-  mctx.drawImage(mapC,0,0,450,330);
-  mctx.fillStyle='#ffe14d';NPCS.forEach(n=>mctx.fillRect(n.x*3,n.y*3,4,4));
-  mctx.fillStyle='#ff4040';MONS.forEach(m=>{if(!m.dead)mctx.fillRect(m.x*3,m.y*3,3,3);});
-  mctx.fillStyle='#ffffff';mctx.fillRect(P.x*3-1,P.y*3-1,6,6);
+  mctx.drawImage(mapC,0,0,840,520);
+  mctx.fillStyle='#ffe14d';NPCS.forEach(n=>mctx.fillRect(n.x*2-1,n.y*2-1,4,4));
+  mctx.fillStyle='#ff4040';MONS.forEach(m=>{if(!m.dead)mctx.fillRect(m.x*2,m.y*2,2,2);});
+  mctx.fillStyle='#ffffff';mctx.fillRect(P.x*2-2,P.y*2-2,6,6);
   mctx.font='8px "Press Start 2P", monospace';mctx.fillStyle='#fff';
   mctx.fillText('MAPA (M ou Esc para fechar)',8,14);
 }
